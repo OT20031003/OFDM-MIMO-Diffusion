@@ -137,7 +137,7 @@ def caluc_lpips(x,y):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    t = 0 # 意図的に与えるタイムステップ
+    t = 50 # 意図的に与えるタイムステップ
     parser.add_argument(
         "--prompt",
         type=str,
@@ -151,7 +151,7 @@ if __name__ == "__main__":
         type=str,
         nargs="?",
         help="dir to write results to",
-        default=f"outputs/jointdiffusion/t={t}"
+        default=f"outputs/jointdiffusion/no_ht={t}"
     )
     parser.add_argument(
         "--nosample_outdir",
@@ -281,9 +281,13 @@ if __name__ == "__main__":
     # detachはVAEの重みを固定するため
     print(f"encode start = ")
     z = model.get_first_stage_encoding(z).detach()
-    print(f"z = {z.shape}, z_max = {z.max()}, z_min = {z.min()}")
-    z_variances_original = torch.var(z, dim=(1, 2, 3))
-    print(f"z_variance_original = {z_variances_original}")
+    # forward process のための正規化
+    # z_encode_mean = z.mean(dim=(1, 2, 3), keepdim=True)
+    # z_variances_original = torch.var(z, dim=(1, 2, 3))
+    # z = (z - z_encode_mean) / torch.sqrt(z_variances_original)
+    # print(f"z = {z.shape}, z_max = {z.max()}, z_min = {z.min()}")
+    
+    #print(f"z_variance_original = {z_variances_original}")
     z = sampler.forward_diffusion(S=opt.ddim_steps, batch_size=z.shape[0], timestep=t, x = z)
     
     # チャネル符号化 (複素数)
@@ -319,7 +323,7 @@ if __name__ == "__main__":
         noise = torch.complex(noise_real, noise_imag)
         
         print(f"noise_variace = {noise_variances}, z_variance = {z_variances}")
-        z = z + noise *1/h
+        z = z + noise
         #save_img(z, f"outputs/z_{snr}.png")
         # 非正規化
         z = torch.sqrt(z_variances_with_noise.view(-1, 1, 1, 1)) * z + z_mean

@@ -286,7 +286,7 @@ if __name__ == "__main__":
     print(f"z_variance = {z_variances}")
     save_img(z, "outputs/z.png")
     z_copy = z
-    for snr in range(-5, 10, 1):
+    for snr in range(-1, 2, 1):
         # SNR 15dBのときのノイズを乗せる snr = signal/noise
         print(f"--------SNR = {snr}-----------")
         z = z_copy
@@ -296,7 +296,7 @@ if __name__ == "__main__":
         noise_variances_normalize = torch.full_like(z_variances, scalar_variance) 
          # k < 0のときより多くのサンプリングを行う
         noise_variances_predict = noise_variances_normalize / (1.0 + k) # 誤差付きの予測値
-        print(f"noise_variace = {noise_variances}, z_variance = {z_variances}")
+        print(f"noise_variace_predict = {noise_variances_predict}, z_variance = {z_variances}")
         noise = torch.randn(z.shape).to("cuda") * torch.sqrt(torch.tensor(noise_variances).view(-1, 1, 1, 1).to("cuda")).to("cuda")
         z = z + noise
         #save_img(z, f"outputs/z_{snr}.png")

@@ -312,7 +312,7 @@ if __name__ == "__main__":
     main()
 
 """
-python eval.py --metric psnr outputs/adaptive_timestep ./outputs/jointdiffusion/t=0 ./outputs/jointdiffusion/t=50 ./outputs/jointdiffusion/t=150 ./outputs/jointdiffusion/no_ht=0 
+python eval.py --metric lpips ./outputs/jointdiffusion/t=0 ./outputs/jointdiffusion/t=50  ./outputs/jointdiffusion/t=150 ./outputs/jointdiffusion/no_ht=0 ./outputs/jointdiffusion/no_ht=50 
 
 
 """
