@@ -77,6 +77,8 @@ class DDIMSampler(object):
         
         # 指定されたtimestepの alpha_bar を取得 (これはスカラー)
         # self.alphas_cumprod は make_schedule によってモデルと同じデバイスに配置済み
+        print(f"self.alphas_cumprod = {self.alphas_cumprod}, ----shape--- = {self.alphas_cumprod.shape}")
+
         alpha_t_bar = self.alphas_cumprod[timestep] 
 
         # --- 修正点 ---
@@ -88,6 +90,9 @@ class DDIMSampler(object):
         #    view(-1, 1, 1, 1) は、バッチ処理（batch_size > 1）の場合に重要です
         #    (self.alphas_cumprod[timestep]はスカラーなので、view(1, 1, 1, 1)でもOK)
         sqrt_alpha_t_bar = torch.sqrt(alpha_t_bar).view(1, 1, 1, 1)
+        if timestep == 0:
+            #print(f"ddim.py ===========   sqrt_alpha_t_bar = {sqrt_alpha_t_bar}")
+            sqrt_alpha_t_bar = 1.0
         sqrt_one_minus_alpha_t_bar = torch.sqrt(1.0 - alpha_t_bar).view(1, 1, 1, 1)
 
         # 3. ノイズを加える (x_t = sqrt(alpha_bar_t) * x_0 + sqrt(1 - alpha_bar_t) * epsilon)
@@ -369,7 +374,8 @@ class DDIMSampler(object):
         C, H, W = shape
         size = (batch_size, C, H, W)
         alpha_bar_t = self.alphas_cumprod[added_timestep] 
-
+        if alpha_bar_t == 0:
+            alpha_bar_t = 1.0
         device = self.model.betas.device
         alpha_bar_u = 1/((torch.sqrt(1 - alpha_bar_t) + torch.sqrt(noise_sigma_predict))/torch.sqrt(alpha_bar_t)**2 + 1)
         print(f"ddim.py, alpha_bar_u = {alpha_bar_u}")

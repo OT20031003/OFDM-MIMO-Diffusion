@@ -284,20 +284,24 @@ if __name__ == "__main__":
     print(f"z = {z.shape}, z_max = {z.max()}, z_min = {z.min()}")
     z_variances_original = torch.var(z, dim=(1, 2, 3))
     print(f"z_variance_original = {z_variances_original}")
-    z = sampler.forward_diffusion(S=opt.ddim_steps, batch_size=z.shape[0], timestep=150, x = z)
-    # 正規化
-    z_variances_with_noise = torch.var(z, dim=(1, 2, 3))
-    eps = 0.0000001
-    normalized_z = z / torch.sqrt((z_variances_with_noise + eps)).view(-1, 1, 1, 1)
+    z = sampler.forward_diffusion(S=opt.ddim_steps, batch_size=z.shape[0], timestep=t, x = z)
+    
     # チャネル符号化 (複素数)
-    assert(normalized_z.shape[1] % 2 == 0)
-    real_part, img_part = torch.chunk(normalized_z, 2, dim = 1)
+    assert(z.shape[1] % 2 == 0)
+    real_part, img_part = torch.chunk(z, 2, dim = 1)
 
     complex_z = torch.complex(real_part, img_part)
-    z_copy = complex_z
+    # 正規化
+    z_mean = complex_z.mean(dim=(1, 2, 3), keepdim=True)
+    z_variances_with_noise = torch.var(complex_z, dim=(1, 2, 3)) 
+    eps = 0.0000001
+    complex_z = complex_z - z_mean
+    normalized_z = complex_z / torch.sqrt((z_variances_with_noise + eps)).view(-1, 1, 1, 1)
+    print(f"complex_z = {torch.var(normalized_z, dim=(1, 2, 3))}")
+    z_copy = normalized_z
     h = torch.randn(size=()) + torch.randn(size=())*1j
     h = h.to(device)
-    for snr in range(-1, 2, 1):
+    for snr in range(-5, 10, 1):
         # SNR 15dBのときのノイズを乗せる snr = signal/noise
         print(f"--------SNR = {snr}-----------")
         z = z_copy
@@ -314,13 +318,14 @@ if __name__ == "__main__":
         noise_imag = torch.randn_like(z.real) * noise_std
         noise = torch.complex(noise_real, noise_imag)
         
-        print(f"noise_variace = {noise_variances}, z_variance_with_noise = {z_variances_with_noise}")
-        z = z + noise * 1/h
+        print(f"noise_variace = {noise_variances}, z_variance = {z_variances}")
+        z = z + noise *1/h
         #save_img(z, f"outputs/z_{snr}.png")
+        # 非正規化
+        z = torch.sqrt(z_variances_with_noise.view(-1, 1, 1, 1)) * z + z_mean
         # channel decoding
         z = torch.cat([z.real, z.imag], dim=1)
-        # 非正規化
-        z = torch.sqrt(z_variances_with_noise.view(-1, 1, 1, 1)) * z
+        
         recoverd_img_no_samp = model.decode_first_stage(z)
         #save_img(recoverd_img_no_samp, f"outputs/nosample_{snr}.png")  
         cond = model.get_learned_conditioning(z.shape[0] * [""])
