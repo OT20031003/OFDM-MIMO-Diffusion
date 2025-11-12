@@ -21,13 +21,34 @@ autoencoder.py , moments = torch.Size([10, 8, 32, 32])
 encode start = 
 z_variance before normalization = tensor([0.5908, 0.4737, 0.7370, 0.6033, 0.5286, 0.8769, 0.5822, 0.6585, 0.6126,
         0.5291], device='cuda:0')
-Variance (Real, all elements): 0.530335009098053
-Variance (Imag, all elements): 0.4734044373035431
+Variance (Real, all elements): 0.530335545539856
+Variance (Imag, all elements): 0.47340381145477295
 --------SNR = -5-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([15.4169,  3.2273,  4.6742,  3.5471], device='cuda:0'), tensor([ 1.2020, 10.0624,  3.1791,  3.9540], device='cuda:0'), tensor([ 2.7785,  4.1644, 11.0282,  4.5515], device='cuda:0'), tensor([ 3.1166,  0.9313,  0.9632, 11.2918], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[14.0118,  8.2514,  6.1241,  6.7558],
+        [ 6.0052, 13.0387, 10.5264,  8.3339],
+        [16.9201, 14.2941,  7.5670, 13.3858],
+        [12.6298, 19.9442, 10.7083,  7.4191],
+        [ 5.9097,  9.0696,  5.3115, 10.9416],
+        [11.0875,  7.8203, 10.9921,  7.8434],
+        [14.5606, 13.7960, 11.2073,  6.5117],
+        [16.0968,  5.6791,  9.9187,  8.1756],
+        [ 9.0274, 12.5215, 13.2281,  8.2474],
+        [ 6.8817,  5.1123, 13.0116, 11.4388]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[25.7012, 15.1350, 11.2332, 12.3919],
+        [11.0150, 23.9161, 19.3080, 15.2864],
+        [31.0356, 26.2189, 13.8797, 24.5528],
+        [23.1662, 36.5826, 19.6417, 13.6085],
+        [10.8398, 16.6360,  9.7427, 20.0696],
+        [20.3372, 14.3444, 20.1623, 14.3868],
+        [26.7078, 25.3054, 20.5570, 11.9440],
+        [29.5255, 10.4168, 18.1934, 14.9961],
+        [16.5585, 22.9675, 24.2636, 15.1278],
+        [12.6227,  9.3773, 23.8665, 20.9816]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([32.2130, 34.7437, 47.8173, 46.4740, 28.6283, 34.5963, 42.2339, 36.5458,
+        39.4370, 33.4057], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -41,8 +62,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.24025307335204216
-ddim.py start_timesteps after clamp S = 200 : 529
+ddim.py, alpha_bar_u = tensor([0.0301, 0.0280, 0.0205, 0.0211, 0.0338, 0.0281, 0.0231, 0.0266, 0.0247,
+        0.0291], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([823, 831, 864, 861, 810, 831, 851, 836, 844, 827], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -50,8 +72,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = -4-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([16.4222,  6.2753,  5.0972,  3.6934], device='cuda:0'), tensor([ 3.8302, 11.2841,  3.0133,  1.9036], device='cuda:0'), tensor([ 2.7744,  1.2610, 13.1889,  5.2916], device='cuda:0'), tensor([ 2.9342,  4.6733,  4.1691, 10.0868], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[ 6.8313, 12.2084, 10.4347, 22.3174],
+        [10.9075, 15.7744,  6.0730,  9.1698],
+        [ 7.1278,  7.3364,  9.5718, 10.5259],
+        [10.2269, 11.5649,  6.2492,  8.1058],
+        [14.1487,  7.1250,  8.9789,  7.4108],
+        [ 9.9234, 14.5231, 11.2062, 13.4297],
+        [10.0251,  7.4228, 14.2583, 12.4374],
+        [13.8617, 12.0797, 15.1746, 13.8294],
+        [ 7.8328,  9.5184,  8.9766, 10.1178],
+        [11.5214, 11.5389, 10.4222, 10.9482]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[11.5611, 20.6611, 17.6593, 37.7693],
+        [18.4595, 26.6961, 10.2777, 15.5187],
+        [12.0629, 12.4159, 16.1990, 17.8136],
+        [17.3076, 19.5721, 10.5760, 13.7180],
+        [23.9447, 12.0581, 15.1956, 12.5418],
+        [16.7940, 24.5785, 18.9650, 22.7280],
+        [16.9661, 12.5622, 24.1302, 21.0487],
+        [23.4590, 20.4433, 25.6810, 23.4044],
+        [13.2559, 16.1087, 15.1916, 17.1230],
+        [19.4984, 19.5281, 17.6382, 18.5283]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([38.1915, 30.9155, 25.4861, 26.6548, 27.7731, 36.1936, 32.5517, 40.5169,
+        26.8751, 32.7634], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -65,8 +108,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.2847472489508014
-ddim.py start_timesteps after clamp S = 200 : 494
+ddim.py, alpha_bar_u = tensor([0.0255, 0.0313, 0.0378, 0.0362, 0.0348, 0.0269, 0.0298, 0.0241, 0.0359,
+        0.0296], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([841, 819, 798, 803, 807, 835, 824, 847, 804, 825], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -74,8 +118,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = -3-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([10.9846,  4.9480,  5.2542,  1.2876], device='cuda:0'), tensor([0.5011, 3.9858, 1.1001, 1.2447], device='cuda:0'), tensor([6.2230, 3.3515, 9.2343, 1.4023], device='cuda:0'), tensor([3.0316, 0.9058, 3.7916, 9.8409], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[ 9.0296,  6.4808,  9.5472, 11.3335],
+        [ 7.1299,  5.6784,  7.9527, 15.3409],
+        [ 4.4081, 10.7068,  8.8422, 11.0652],
+        [ 9.6019,  9.8304, 10.5961, 10.2930],
+        [12.6215, 10.8447,  5.7685, 13.5876],
+        [ 8.6275,  7.0522,  7.9145,  6.0548],
+        [ 5.3321,  4.5173,  6.7012, 16.9754],
+        [ 7.6433,  9.1226,  8.0509, 11.0399],
+        [15.4153, 11.0653, 15.0487,  6.8262],
+        [10.4692,  9.2857,  8.8924, 12.1747]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[14.1789, 10.1765, 14.9917, 17.7966],
+        [11.1958,  8.9166, 12.4879, 24.0893],
+        [ 6.9220, 16.8126, 13.8846, 17.3753],
+        [15.0776, 15.4363, 16.6388, 16.1628],
+        [19.8192, 17.0291,  9.0581, 21.3361],
+        [13.5476, 11.0739, 12.4279,  9.5076],
+        [ 8.3728,  7.0934, 10.5227, 26.6560],
+        [12.0020, 14.3249, 12.6420, 17.3356],
+        [24.2062, 17.3755, 23.6304, 10.7189],
+        [16.4394, 14.5810, 13.9635, 19.1176]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([21.7926, 21.6194, 20.9729, 24.1463, 25.6439, 17.7551, 20.0769, 21.4726,
+        28.9574, 24.4460], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -89,8 +154,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.3338605754168779
-ddim.py start_timesteps after clamp S = 200 : 459
+ddim.py, alpha_bar_u = tensor([0.0439, 0.0442, 0.0455, 0.0398, 0.0375, 0.0533, 0.0474, 0.0445, 0.0334,
+        0.0393], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([780, 779, 776, 792, 798, 757, 771, 779, 812, 793], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -98,8 +164,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = -2-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([6.3595, 3.7630, 2.2490, 1.7659], device='cuda:0'), tensor([1.8570, 8.2951, 3.8110, 1.2866], device='cuda:0'), tensor([ 1.6365,  2.3058, 12.0850,  6.9633], device='cuda:0'), tensor([1.9998, 0.8366, 2.5505, 7.8318], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[ 7.5438,  7.0639,  4.1734,  7.5793],
+        [13.6275,  7.7142,  6.5756, 11.3361],
+        [10.3155, 10.5812, 10.0326,  3.5732],
+        [ 6.0827, 13.5644,  8.2692,  7.6727],
+        [ 9.4111,  4.3506,  7.8415, 10.4829],
+        [10.3530, 15.2408,  6.0036,  8.7098],
+        [15.5255, 11.1506,  8.6743, 10.9589],
+        [10.3007,  7.7457,  7.5932,  8.6626],
+        [15.2095,  9.3593,  9.6821, 11.3317],
+        [13.8993,  8.3486, 13.7786, 13.2214]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[11.0642, 10.3604,  6.1210, 11.1163],
+        [19.9870, 11.3141,  9.6441, 16.6262],
+        [15.1294, 15.5190, 14.7145,  5.2407],
+        [ 8.9213, 19.8944, 12.1281, 11.2533],
+        [13.8028,  6.3808, 11.5008, 15.3749],
+        [15.1843, 22.3532,  8.8052, 12.7743],
+        [22.7707, 16.3542, 12.7222, 16.0730],
+        [15.1077, 11.3603, 11.1367, 12.7051],
+        [22.3072, 13.7269, 14.2004, 16.6198],
+        [20.3856, 12.2445, 20.2085, 19.3913]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([12.9468, 19.2790, 16.9457, 17.4793, 15.7588, 19.7966, 22.7445, 16.8473,
+        22.3876, 24.1877], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -113,8 +200,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.386863179846857
-ddim.py start_timesteps after clamp S = 200 : 424
+ddim.py, alpha_bar_u = tensor([0.0717, 0.0493, 0.0557, 0.0541, 0.0597, 0.0481, 0.0421, 0.0560, 0.0428,
+        0.0397], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([719, 766, 751, 755, 743, 769, 785, 751, 783, 792], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -122,8 +210,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = -1-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([8.7337, 1.7636, 0.9293, 2.0912], device='cuda:0'), tensor([ 1.3877, 11.9434,  3.2872,  2.0867], device='cuda:0'), tensor([ 1.5561,  2.4754, 16.8047,  1.6472], device='cuda:0'), tensor([0.5285, 1.9582, 2.2755, 8.6395], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[11.9159,  6.8546, 12.9603, 10.4732],
+        [10.0767,  5.1191, 16.5634,  8.5804],
+        [12.1505, 11.2008, 12.2326,  5.9870],
+        [ 3.4886,  9.0082, 12.4161, 14.6524],
+        [17.2405,  9.9287, 22.0776,  7.3936],
+        [18.8860, 12.6018, 14.9516,  7.2835],
+        [ 9.4430,  9.8773, 10.1567, 13.5851],
+        [ 7.8719,  9.2987, 15.9472, 11.4649],
+        [ 8.4985,  8.0786,  8.9339, 11.0073],
+        [ 4.9172,  9.1424, 14.3603,  8.3535]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[16.4415,  9.4580, 17.8826, 14.4509],
+        [13.9038,  7.0633, 22.8541, 11.8392],
+        [16.7652, 15.4548, 16.8784,  8.2608],
+        [ 4.8135, 12.4295, 17.1317, 20.2174],
+        [23.7883, 13.6995, 30.4627, 10.2016],
+        [26.0588, 17.3880, 20.6301, 10.0498],
+        [13.0294, 13.6286, 14.0142, 18.7447],
+        [10.8616, 12.8303, 22.0039, 15.8192],
+        [11.7261, 11.1468, 12.3270, 15.1878],
+        [ 6.7848, 12.6146, 19.8143, 11.5262]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([17.1701, 16.4116, 16.9125, 16.0966, 23.0433, 21.8564, 17.5192, 18.1378,
+        14.8569, 14.9607], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -137,8 +246,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.44268836623770724
-ddim.py start_timesteps after clamp S = 200 : 389
+ddim.py, alpha_bar_u = tensor([0.0550, 0.0574, 0.0558, 0.0585, 0.0416, 0.0438, 0.0540, 0.0523, 0.0631,
+        0.0627], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([753, 748, 751, 745, 787, 781, 755, 759, 736, 737], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -146,8 +256,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = 0-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([7.1093, 5.1155, 1.3470, 1.1723], device='cuda:0'), tensor([2.7275, 7.2440, 3.6747, 1.5707], device='cuda:0'), tensor([ 2.4907,  4.0791, 10.0191,  1.9729], device='cuda:0'), tensor([ 2.3199,  1.3374,  3.8518, 11.3512], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[11.9281,  9.7908,  9.3637, 10.2224],
+        [11.4533,  7.9048, 12.6571, 10.3127],
+        [ 5.6387,  9.0462,  6.1065,  9.0676],
+        [ 7.4364, 13.9486,  6.6786,  5.5276],
+        [ 7.3402, 12.1424,  6.8665,  6.8570],
+        [11.0552,  9.5529,  5.1104,  6.9372],
+        [ 7.0615, 10.2964,  8.7596,  8.7878],
+        [12.7708, 15.6156, 11.2652, 11.2928],
+        [ 4.6147,  8.7955,  5.5525, 13.5107],
+        [ 9.9596, 14.0415,  6.6436, 10.7133]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[15.5982, 12.8034, 12.2449, 13.3677],
+        [14.9774, 10.3370, 16.5515, 13.4858],
+        [ 7.3737, 11.8296,  7.9854, 11.8577],
+        [ 9.7246, 18.2405,  8.7335,  7.2284],
+        [ 9.5987, 15.8786,  8.9792,  8.9669],
+        [14.4568, 12.4922,  6.6828,  9.0717],
+        [ 9.2342, 13.4645, 11.4549, 11.4918],
+        [16.7003, 20.4204, 14.7314, 14.7675],
+        [ 6.0346, 11.5018,  7.2610, 17.6679],
+        [13.0241, 18.3620,  8.6878, 14.0097]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([14.0549, 14.4030, 10.1602, 11.4302, 11.2991, 11.1118, 11.8773, 17.3350,
+        11.0498, 14.0730], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -161,8 +292,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.5
-ddim.py start_timesteps after clamp S = 200 : 354
+ddim.py, alpha_bar_u = tensor([0.0664, 0.0649, 0.0896, 0.0804, 0.0813, 0.0826, 0.0777, 0.0545, 0.0830,
+        0.0663], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([729, 732, 689, 704, 703, 700, 709, 754, 700, 729], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -170,8 +302,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = 1-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([8.6502, 6.3182, 1.9305, 2.8595], device='cuda:0'), tensor([ 1.3181, 10.2455,  0.4369,  1.7654], device='cuda:0'), tensor([1.9186, 4.3182, 8.8288, 4.4012], device='cuda:0'), tensor([0.7851, 2.3863, 7.6803, 8.0396], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[ 6.2231, 11.0274,  7.3384,  7.9920],
+        [13.9993,  9.0797,  8.5036, 12.3844],
+        [ 8.2144, 14.0543, 15.8210,  9.3458],
+        [ 4.4687,  8.3207, 13.0822,  8.8964],
+        [ 7.3574,  5.1943, 12.4850,  9.0844],
+        [ 5.7767,  6.9983,  6.0907,  8.7494],
+        [10.3137,  7.8350, 10.1709, 14.2247],
+        [ 7.1459,  8.5470, 12.5640,  9.0432],
+        [ 2.5025,  8.7601, 10.3041, 13.5591],
+        [ 9.1922,  7.8970, 16.9922,  5.7994]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[ 7.7686, 13.7659,  9.1608,  9.9767],
+        [17.4758, 11.3346, 10.6153, 15.4599],
+        [10.2543, 17.5445, 19.7500, 11.6667],
+        [ 5.5784, 10.3870, 16.3309, 11.1057],
+        [ 9.1845,  6.4843, 15.5855, 11.3404],
+        [ 7.2113,  8.7362,  7.6033, 10.9222],
+        [12.8749,  9.7807, 12.6967, 17.7573],
+        [ 8.9205, 10.6695, 15.6841, 11.2889],
+        [ 3.1239, 10.9355, 12.8630, 16.9263],
+        [11.4749,  9.8581, 21.2120,  7.2397]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([ 9.3574, 12.6275, 13.6237,  9.9855,  9.7997,  7.9312, 12.2189, 10.7127,
+        10.0883, 11.4539], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -185,8 +338,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.5573116337622928
-ddim.py start_timesteps after clamp S = 200 : 320
+ddim.py, alpha_bar_u = tensor([0.0965, 0.0734, 0.0684, 0.0910, 0.0926, 0.1120, 0.0756, 0.0854, 0.0902,
+        0.0803], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([679, 716, 726, 687, 685, 657, 712, 696, 688, 704], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -194,8 +348,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = 2-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([21.2998, 11.1942,  7.9032,  1.5225], device='cuda:0'), tensor([2.0232, 5.6883, 2.0268, 3.7456], device='cuda:0'), tensor([2.3333, 3.2223, 9.3824, 1.4537], device='cuda:0'), tensor([2.8570, 3.2625, 0.8992, 7.6634], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[15.9712,  8.2993, 13.1776, 10.5138],
+        [12.1961, 10.0071, 15.6061,  9.0171],
+        [ 5.0569,  6.9737, 12.5931,  9.2516],
+        [ 6.8821, 14.2313, 11.6296, 19.8016],
+        [10.3532,  7.0451, 12.5611, 16.0732],
+        [13.4141,  9.4431, 11.6793, 17.5096],
+        [ 9.6496, 11.4229,  5.1090,  8.7891],
+        [10.7264,  6.0169, 11.1410,  5.9729],
+        [11.9416,  8.0387, 11.8096, 11.9026],
+        [10.8546, 10.9480,  8.2273,  4.2211]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[19.1625,  9.9576, 15.8106, 12.6145],
+        [14.6330, 12.0066, 18.7244, 10.8188],
+        [ 6.0673,  8.3671, 15.1094, 11.1002],
+        [ 8.2572, 17.0749, 13.9533, 23.7582],
+        [12.4220,  8.4528, 15.0710, 19.2848],
+        [16.0944, 11.3299, 14.0129, 21.0083],
+        [11.5778, 13.7054,  6.1298, 10.5453],
+        [12.8697,  7.2191, 13.3671,  7.1664],
+        [14.3277,  9.6450, 14.1693, 14.2809],
+        [13.0235, 13.1356,  9.8712,  5.0645]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([11.7240, 11.4464,  8.2806, 12.8443, 11.2524, 12.7224,  8.5484,  8.2762,
+        10.6804,  8.3725], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -209,8 +384,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.6131368201531431
-ddim.py start_timesteps after clamp S = 200 : 287
+ddim.py, alpha_bar_u = tensor([0.0786, 0.0803, 0.1078, 0.0722, 0.0816, 0.0729, 0.1047, 0.1078, 0.0856,
+        0.1067], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([707, 704, 663, 718, 702, 717, 667, 663, 695, 664], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -218,8 +394,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = 3-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([6.7194, 3.0497, 2.0490, 2.8500], device='cuda:0'), tensor([1.6710, 7.2949, 1.5782, 2.4331], device='cuda:0'), tensor([3.4045, 1.6653, 5.7864, 3.1275], device='cuda:0'), tensor([ 6.8052,  1.5483,  2.5277, 13.5751], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[13.8392, 11.5273,  3.7289, 12.4139],
+        [13.9992, 13.5046,  8.1239,  8.7662],
+        [10.4544,  7.9785, 13.0872, 19.9174],
+        [10.8557, 11.8291,  8.6153, 10.6218],
+        [ 8.6618,  9.6681,  5.7451, 11.1842],
+        [ 7.2336,  8.9786,  4.8670,  6.7351],
+        [ 7.4763,  5.3436,  8.3003,  9.1061],
+        [10.2470, 12.2402,  9.8199, 10.5854],
+        [ 7.3956, 10.0469,  5.9807, 15.6408],
+        [ 7.1343, 11.0408,  5.6067,  6.2748]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[16.0585, 13.3759,  4.3268, 14.4046],
+        [16.2442, 15.6703,  9.4267, 10.1720],
+        [12.1309,  9.2580, 15.1859, 23.1114],
+        [12.5966, 13.7260,  9.9969, 12.3252],
+        [10.0509, 11.2185,  6.6664, 12.9777],
+        [ 8.3936, 10.4185,  5.6475,  7.8152],
+        [ 8.6753,  6.2005,  9.6314, 10.5664],
+        [11.8903, 14.2031, 11.3946, 12.2829],
+        [ 8.5815, 11.6581,  6.9398, 18.1490],
+        [ 8.2784, 12.8113,  6.5059,  7.2810]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([ 8.7009,  9.3056, 10.7820,  8.7874,  7.3908,  5.8303,  6.3359,  8.9909,
+         8.1883,  6.3003], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -233,8 +430,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.666139424583122
-ddim.py start_timesteps after clamp S = 200 : 255
+ddim.py, alpha_bar_u = tensor([0.1031, 0.0970, 0.0849, 0.1022, 0.1192, 0.1464, 0.1363, 0.1001, 0.1088,
+        0.1370], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([669, 678, 697, 671, 648, 616, 627, 674, 661, 626], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -242,8 +440,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = 4-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([9.9029, 2.3681, 3.4733, 2.3529], device='cuda:0'), tensor([ 3.3972, 10.9965,  2.9471,  5.3586], device='cuda:0'), tensor([3.5849, 3.6420, 8.3746, 2.3497], device='cuda:0'), tensor([ 3.7233,  2.4555,  5.5477, 15.7250], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[10.0306, 10.1433, 10.0166, 10.5354],
+        [11.2869,  6.6774,  6.2354,  8.7392],
+        [12.8200,  4.2847, 10.4668, 10.1631],
+        [ 5.7144, 14.6085, 14.4402, 11.8407],
+        [ 6.2053, 11.4029, 14.8509, 16.0019],
+        [12.3608, 15.7723,  4.4590, 10.2831],
+        [ 8.5219, 14.9432, 12.8882, 11.8284],
+        [13.5480, 20.1614,  9.8914,  7.9756],
+        [11.6114,  7.1654,  6.2601, 15.4178],
+        [12.8001,  8.5341,  9.8318,  8.0006]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[11.3190, 11.4461, 11.3031, 11.8885],
+        [12.7366,  7.5351,  7.0363,  9.8617],
+        [14.4666,  4.8351, 11.8111, 11.4684],
+        [ 6.4483, 16.4848, 16.2949, 13.3615],
+        [ 7.0023, 12.8675, 16.7584, 18.0573],
+        [13.9484, 17.7981,  5.0317, 11.6038],
+        [ 9.6164, 16.8625, 14.5436, 13.3477],
+        [15.2881, 22.7509, 11.1619,  9.0000],
+        [13.1028,  8.0857,  7.0641, 17.3980],
+        [14.4442,  9.6302, 11.0946,  9.0282]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([7.3684, 5.9596, 6.8272, 8.4319, 8.7680, 7.7573, 8.7174, 9.3316, 7.3194,
+        7.0863], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -257,8 +476,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.7152527510491986
-ddim.py start_timesteps after clamp S = 200 : 225
+ddim.py, alpha_bar_u = tensor([0.1195, 0.1437, 0.1278, 0.1060, 0.1024, 0.1142, 0.1029, 0.0968, 0.1202,
+        0.1237], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([647, 619, 637, 665, 670, 654, 670, 678, 647, 642], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -266,8 +486,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = 5-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([5.3666, 0.8576, 3.7880, 2.0548], device='cuda:0'), tensor([4.6109, 9.9284, 2.6798, 2.2146], device='cuda:0'), tensor([ 3.8819,  3.8199, 15.1031,  3.8582], device='cuda:0'), tensor([0.6130, 2.3364, 2.2443, 7.1962], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[11.7461, 11.1719,  9.0492,  9.5220],
+        [17.5256, 11.6299,  8.3286,  8.5579],
+        [ 7.5966,  4.9175, 10.0973,  5.9402],
+        [10.5389,  6.6101, 12.4113,  9.8942],
+        [10.2167,  7.4927,  7.4339,  7.9053],
+        [ 4.5787,  8.0210,  8.3906,  8.9209],
+        [11.4526,  9.3771, 12.7646, 11.8641],
+        [13.0293,  6.1893,  9.0227,  7.1408],
+        [ 9.7844,  7.8570,  8.1533, 11.5314],
+        [14.5476,  9.4353,  5.8020, 13.3405]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[12.9525, 12.3193,  9.9786, 10.4999],
+        [19.3256, 12.8243,  9.1840,  9.4368],
+        [ 8.3768,  5.4225, 11.1344,  6.5503],
+        [11.6213,  7.2890, 13.6860, 10.9104],
+        [11.2660,  8.2623,  8.1974,  8.7172],
+        [ 5.0489,  8.8448,  9.2523,  9.8371],
+        [12.6288, 10.3402, 14.0756, 13.0826],
+        [14.3675,  6.8250,  9.9494,  7.8742],
+        [10.7893,  8.6639,  8.9907, 12.7157],
+        [16.0417, 10.4043,  6.3978, 14.7106]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([6.5160, 7.2310, 4.4841, 6.1965, 5.1904, 4.6976, 7.1394, 5.5569, 5.8622,
+        6.7730], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -281,8 +522,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.7597469266479578
-ddim.py start_timesteps after clamp S = 200 : 197
+ddim.py, alpha_bar_u = tensor([0.1330, 0.1215, 0.1823, 0.1390, 0.1615, 0.1755, 0.1229, 0.1525, 0.1457,
+        0.1287], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([631, 645, 579, 624, 600, 586, 643, 609, 617, 636], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -290,8 +532,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = 6-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([8.1192, 0.6931, 1.1326, 2.9755], device='cuda:0'), tensor([2.4054, 6.9324, 2.1371, 1.8148], device='cuda:0'), tensor([3.0773, 3.5982, 7.2507, 4.2782], device='cuda:0'), tensor([ 4.3345,  4.8802,  1.5094, 10.9084], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[14.2685,  8.6012,  9.5195, 10.7915],
+        [ 8.6369, 12.7283, 11.1720,  9.9317],
+        [ 9.1266,  8.8764, 11.9744,  5.8543],
+        [12.0632,  5.8332, 10.8194,  7.6215],
+        [ 7.1345,  9.8978,  5.8136,  6.3083],
+        [11.0247, 17.1996,  9.3984,  9.0460],
+        [ 6.6955,  6.1569,  3.6952, 12.4787],
+        [ 3.2731, 12.7078,  9.7967, 19.5858],
+        [ 7.6440, 16.6003, 13.6081,  5.5352],
+        [ 2.9527, 12.1028, 11.8975,  9.0596]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[15.4387,  9.3066, 10.3003, 11.6765],
+        [ 9.3452, 13.7722, 12.0883, 10.7463],
+        [ 9.8751,  9.6044, 12.9565,  6.3345],
+        [13.0526,  6.3116, 11.7067,  8.2466],
+        [ 7.7197, 10.7096,  6.2904,  6.8256],
+        [11.9289, 18.6102, 10.1692,  9.7879],
+        [ 7.2446,  6.6618,  3.9983, 13.5021],
+        [ 3.5415, 13.7500, 10.6002, 21.1921],
+        [ 8.2709, 17.9617, 14.7241,  5.9891],
+        [ 3.1948, 13.0954, 12.8733,  9.8026]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([5.9151, 5.8176, 4.9084, 4.9776, 3.9937, 6.3929, 3.9761, 6.2141, 5.9434,
+        4.9332], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -305,8 +568,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.7992399910868982
-ddim.py start_timesteps after clamp S = 200 : 170
+ddim.py, alpha_bar_u = tensor([0.1446, 0.1467, 0.1693, 0.1673, 0.2003, 0.1353, 0.2010, 0.1386, 0.1440,
+        0.1685], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([618, 616, 592, 594, 563, 628, 562, 625, 618, 593], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -314,8 +578,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = 7-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([6.2802, 2.5654, 3.4128, 2.6885], device='cuda:0'), tensor([3.5109, 4.5678, 1.0890, 2.0026], device='cuda:0'), tensor([ 4.3455,  2.0574, 10.0084,  1.3217], device='cuda:0'), tensor([2.5190, 1.7543, 4.2922, 9.6942], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[10.2100, 10.6313, 14.1938,  5.2460],
+        [ 8.4893, 11.6386, 10.5583, 10.0109],
+        [ 8.5607,  5.5882,  5.7455, 13.1847],
+        [12.0986,  9.1643,  8.0253,  8.5672],
+        [ 3.9489,  8.1821,  6.1212, 11.0942],
+        [ 8.3164,  6.3998,  8.7717, 11.0277],
+        [14.1567,  8.7154, 13.3979, 15.6058],
+        [10.1998, 11.8177, 11.1378,  8.9390],
+        [ 8.3266, 19.5768, 11.9119,  9.4494],
+        [ 9.7321,  9.0801,  5.5415, 11.8437]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[10.8779, 11.3268, 15.1223,  5.5892],
+        [ 9.0446, 12.4000, 11.2490, 10.6658],
+        [ 9.1208,  5.9538,  6.1214, 14.0473],
+        [12.8901,  9.7638,  8.5503,  9.1277],
+        [ 4.2072,  8.7174,  6.5216, 11.8200],
+        [ 8.8604,  6.8185,  9.3455, 11.7491],
+        [15.0828,  9.2855, 14.2744, 16.6267],
+        [10.8670, 12.5909, 11.8665,  9.5238],
+        [ 8.8714, 20.8575, 12.6911, 10.0676],
+        [10.3688,  9.6742,  5.9040, 12.6185]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([4.8322, 4.8821, 3.9682, 4.5412, 3.5204, 4.1405, 6.2231, 5.0497, 5.9099,
+        4.3423], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -329,8 +614,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.8336624691834381
-ddim.py start_timesteps after clamp S = 200 : 146
+ddim.py, alpha_bar_u = tensor([0.1715, 0.1700, 0.2013, 0.1805, 0.2212, 0.1945, 0.1384, 0.1653, 0.1447,
+        0.1872], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([590, 591, 562, 581, 544, 568, 625, 596, 618, 575], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -338,8 +624,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = 8-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([8.3643, 4.8202, 2.7984, 1.4025], device='cuda:0'), tensor([ 0.3110, 10.4637,  1.9249,  6.1288], device='cuda:0'), tensor([ 1.1476,  3.5945, 17.1650,  0.7289], device='cuda:0'), tensor([ 4.3394,  5.2126,  2.3354, 11.0346], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[ 7.0288, 15.5750,  9.2349,  9.9027],
+        [ 5.6715, 10.4874,  9.7162,  8.0498],
+        [12.4363,  8.9243,  6.9253, 11.7341],
+        [ 6.7349,  7.6236,  6.3782,  9.2248],
+        [11.5248, 14.4254, 14.6641,  9.9557],
+        [11.5819, 12.9011, 10.5681,  8.4724],
+        [ 7.6534, 10.7417,  8.3025,  8.0971],
+        [12.7201, 12.6767, 10.4032,  7.2626],
+        [ 7.6474, 10.2279, 13.4172,  8.2855],
+        [ 6.4316, 12.3302,  8.5771, 13.9194]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[ 7.3953, 16.3871,  9.7164, 10.4190],
+        [ 5.9672, 11.0342, 10.2228,  8.4695],
+        [13.0848,  9.3896,  7.2864, 12.3460],
+        [ 7.0861,  8.0211,  6.7107,  9.7058],
+        [12.1258, 15.1775, 15.4287, 10.4748],
+        [12.1858, 13.5738, 11.1191,  8.9141],
+        [ 8.0525, 11.3018,  8.7354,  8.5193],
+        [13.3833, 13.3377, 10.9456,  7.6412],
+        [ 8.0462, 10.7612, 14.1167,  8.7175],
+        [ 6.7669, 12.9731,  9.0243, 14.6451]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([4.3998, 3.5759, 4.2183, 3.1581, 5.3304, 4.5876, 3.6676, 4.5390, 4.1717,
+        4.3488], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -353,8 +660,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.8631931113967901
-ddim.py start_timesteps after clamp S = 200 : 125
+ddim.py, alpha_bar_u = tensor([0.1852, 0.2185, 0.1916, 0.2405, 0.1580, 0.1790, 0.2142, 0.1805, 0.1934,
+        0.1870], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([576, 547, 570, 528, 603, 582, 550, 581, 569, 575], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/
@@ -362,8 +670,29 @@ recoverd_img = torch.Size([10, 3, 256, 256])
 --------SNR = 9-----------
 ####cond finisihed #####
 ************
-Z_H_Z_k = [tensor([16.4633,  4.4985,  0.5652,  1.3695], device='cuda:0'), tensor([ 2.3721, 10.5489,  1.7620,  0.9942], device='cuda:0'), tensor([ 2.5502,  1.5791, 14.3216,  1.3107], device='cuda:0'), tensor([4.8085, 1.4219, 1.6452, 9.4205], device='cuda:0')]
+Z_H_Z_k (shape: torch.Size([10, 4])) = tensor([[ 9.7238,  9.0664,  5.1922,  9.6469],
+        [13.4380, 20.1137,  9.6814, 11.7716],
+        [ 4.0304, 13.7046, 12.8330,  8.4499],
+        [ 7.0717, 11.0912,  8.6115,  8.2924],
+        [15.1027, 13.0716,  8.3150, 10.0095],
+        [11.4608,  9.1725,  8.7284,  9.2063],
+        [14.8404,  7.2787,  9.7152, 12.3133],
+        [ 7.9664, 14.0566,  5.1251,  7.4409],
+        [10.7672,  7.5509,  8.1273,  7.2756],
+        [10.8429,  9.4131, 16.1686,  8.4659]], device='cuda:0')
+Var (shape: torch.Size([10, 4])) = tensor([[10.1276,  9.4429,  5.4078, 10.0475],
+        [13.9961, 20.9489, 10.0835, 12.2604],
+        [ 4.1978, 14.2738, 13.3660,  8.8008],
+        [ 7.3654, 11.5518,  8.9691,  8.6368],
+        [15.7299, 13.6144,  8.6603, 10.4252],
+        [11.9367,  9.5534,  9.0909,  9.5886],
+        [15.4567,  7.5810, 10.1187, 12.8246],
+        [ 8.2972, 14.6403,  5.3379,  7.7499],
+        [11.2143,  7.8644,  8.4648,  7.5777],
+        [11.2932,  9.8041, 16.8401,  8.8175]], device='cuda:0')
 ***********
+mean_perbatch torch.Size([10]) = tensor([3.1232, 5.1083, 3.6236, 3.2567, 4.3184, 3.5818, 4.1000, 3.2123, 3.1317,
+        4.1690], device='cuda:0')
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps ddim_discr_method = uniform
 ldm/modules/diffusionmodules/util.py, make_ddim_timsteps, Selected timesteps for ddim sampler: (200,)
 ldm/modules/diffusionmodules/util.py, make_ddim_sampling_parameters, Selected alphas for ddim sampler: a_t: torch.Size([200]); a_(t-1): (200,)
@@ -377,8 +706,9 @@ For the chosen value of eta, which is 0.0, this results in the following sigma_t
         0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
         0., 0., 0., 0., 0., 0., 0., 0.], dtype=torch.float64)
 ddim.py alphas_cumprod = torch.Size([1000])
-ddim.py, alpha_bar_u = 0.8881842302218831
-ddim.py start_timesteps after clamp S = 200 : 105
+ddim.py, alpha_bar_u = tensor([0.2425, 0.1637, 0.2163, 0.2349, 0.1880, 0.2183, 0.1961, 0.2374, 0.2420,
+        0.1935], device='cuda:0')
+ddim.py start_timesteps after clamp S = 200 : tensor([527, 597, 548, 533, 574, 547, 566, 531, 527, 569], device='cuda:0')
 d = torch.Size([10, 4, 32, 32])
 recoverd_img = torch.Size([10, 3, 256, 256])
 10 images are saved in outputs/MIMOdiffusion/dynamic/

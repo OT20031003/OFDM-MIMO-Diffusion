@@ -417,18 +417,60 @@ if __name__ == "__main__":
         #save_img(recoverd_img_no_samp, f"outputs/nosample_{snr}.png")
         cond = model.get_learned_conditioning(z.shape[0] * [""])
         print(f"####cond finisihed #####")
-        Z_H_Z_k = []
-        for k in range(K):
-            Z_H_Z_k.append(Z_H_Z[k][k].abs())
+        #Z_H_Z の形状: (B, K, K)
+        # 各バッチの対角成分(K, K)を取得し、絶対値をとる
+        # Z_H_Z_k の形状: (B, K)
+        Z_H_Z_k = torch.diagonal(Z_H_Z, dim1=-2, dim2=-1).abs()
+
+        # beta, gamma の形状: (1, 1, K)
+        # squeeze() で不要な次元を削除 -> (K,)
+        beta_sq = beta.squeeze()   # (K,)
+        gamma_sq = gamma.squeeze() # (K,)
+        
+        # eta の形状: (B, K)
+
+        # 1. (beta_k - gamma_k) を計算
+        # diff の形状: (K,)
+        diff = beta_sq - gamma_sq
+        
+        # 2. (beta_k - gamma_k) * eta_bk を計算
+        # (K,) * (B, K) -> (B, K) (diff が (B, K) にブロードキャストされる)
+        prod = diff * eta
+        
+        # 3. Kの次元で総和を取る: sum_{k=0}^{K-1} ...
+        # sum_term の形状: (B,)
+        sum_term = torch.sum(prod, dim=1)
+        
+        # 4. 1.0 を足す (term の計算)
+        # term の形状: (B,)
+        term = 1.0 + sum_term
+
+        # Var の計算
+        # term を (B, 1) に変形してブロードキャスト
+        # (B, 1) * (B, K) -> (B, K)
+        # Var の形状: (B, K)
+        Var = term.unsqueeze(-1) * Z_H_Z_k
+
         print(f"************")
-        print(f"Z_H_Z_k = {Z_H_Z_k}")
+        # Z_H_Z_k は (B, K) のテンソルとして表示
+        print(f"Z_H_Z_k (shape: {Z_H_Z_k.shape}) = {Z_H_Z_k}")
+        # Var は (B, K) のテンソルとして表示
+        print(f"Var (shape: {Var.shape}) = {Var}")
         print(f"***********")
+        signal_power = torch.sqrt(rho_ul * gamma.squeeze() * eta)
+        var = Var / signal_power
+        mean_per_batch = var.mean(dim=1)
+        # 信号電力を計算
+        
+        print(f"mean_perbatch {mean_per_batch.shape} = {mean_per_batch}")
+        
+        
 
 
 
         samples = sampler.MIMO_decide_starttimestep_ddim_sampling(S=opt.ddim_steps, batch_size=batch_size,
                         shape= z.shape[1:4],x_T=z,
-                        conditioning=cond,starttimestep=t, noise_variance = 1.0 / rho_ul)
+                        conditioning=cond,starttimestep=t, noise_variance = mean_per_batch)
 
 
 
