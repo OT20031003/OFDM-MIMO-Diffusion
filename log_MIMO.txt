@@ -1,1 +1,0 @@
-Loading model from models/ldm/text2img-large/model.ckpt

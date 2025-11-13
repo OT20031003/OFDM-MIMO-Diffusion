@@ -312,7 +312,7 @@ if __name__ == "__main__":
     main()
 
 """
-python eval.py --metric psnr outputs/MIMOdiffusion/nonoisenosample  outputs/MIMOdiffusion/t=50 outputs/MIMOdiffusion/dynamic outputs/MIMOdiffusion/t=100 outputs/MIMOdiffusion/t=200 outputs/MIMOdiffusion/t=400
+python eval.py --metric psnr outputs/MIMOdiffusion/nonoisenosample outputs/MIMOdiffusion/dynamic  outputs/MIMOdiffusion/t=50  outputs/MIMOdiffusion/t=100 
 
 
 """

@@ -290,8 +290,8 @@ if __name__ == "__main__":
     eps = 0.0000001
     img = load_images_as_tensors(opt.input_path)
     K = 4
-    M = 4
-    tau_p = 10 # tau_p >= Kは必須。M >= Kはベター
+    M = 10
+    tau_p = 20 # taup >= Kは必須。M >= にすると推定制度アップ
 
     batch_size = img.shape[0]
 
@@ -445,7 +445,7 @@ if __name__ == "__main__":
         #Z_H_Z の形状: (B, K, K)
         # 各バッチの対角成分(K, K)を取得し、絶対値をとる
         # Z_H_Z_k の形状: (B, K)
-        Z_H_Z_k = torch.diagonal(Z_H_Z, dim1=-2, dim2=-1).abs()
+        inv_Z_H_Z_k = torch.diagonal(inv_Z_H_Z, dim1=-2, dim2=-1).abs()
 
         # beta, gamma の形状: (1, 1, K)
         # squeeze() で不要な次元を削除 -> (K,)
@@ -465,34 +465,37 @@ if __name__ == "__main__":
         # 3. Kの次元で総和を取る: sum_{k=0}^{K-1} ...
         # sum_term の形状: (B,)
         sum_term = torch.sum(prod, dim=1)
-        
+        print(f"sum_betak_gammak = {sum_term}")
         # 4. 1.0 を足す (term の計算)
         # term の形状: (B,)
         term = 1.0 + rho_ul*sum_term
-        effective_noise = w - torch.sqrt(torch.tensor(rho_ul))*G_tilde@(D_eta_sqrt@q)
-        desired_signal = torch.sqrt(torch.tensor(rho_ul))*G_hat @ D_eta_sqrt @ q
-        effective_noise_var = torch.var(effective_noise, dim=(1, 2))
-        desired_signal_var = torch.var(desired_signal, dim=(1, 2))
-        Real_SINR = 10.0 * torch.log10(desired_signal_var / effective_noise_var)
+        
         # Var の計算
         # term を (B, 1) に変形してブロードキャスト
         # (B, 1) * (B, K) -> (B, K)
         # Var の形状: (B, K)
-        Var = term.unsqueeze(-1) * Z_H_Z_k
+        Var = term.unsqueeze(-1) * inv_Z_H_Z_k
 
         print(f"************")
         # Z_H_Z_k は (B, K) のテンソルとして表示
-        print(f"Z_H_Z_k (shape: {Z_H_Z_k.shape}) = {Z_H_Z_k}")
+        print(f"inv_Z_H_Z_k (shape: {inv_Z_H_Z_k.shape}) = {inv_Z_H_Z_k}")
         # Var は (B, K) のテンソルとして表示
         print(f"Var (shape: {Var.shape}) = {Var}")
         print(f"***********")
-        signal_power = torch.sqrt(rho_ul * gamma.squeeze() * eta)
-        var = Var / signal_power
-        mean_per_batch = var.mean(dim=1)
-        SINR = 10.0 * torch.log10(1.0 / mean_per_batch)
+        signal_power = rho_ul * gamma.squeeze() * eta
+        Var = signal_power / Var
+        SINR_linear = torch.mean(Var, dim=1) # ユーザ間で平均（線形値）
+        SINR = 10.0 * torch.log10(SINR_linear) # dBに変換
         
+
+        # Real SNRの計算
+        effective_noise = A.mH@(w - torch.sqrt(torch.tensor(rho_ul))*G_tilde@(D_eta_sqrt@q))
+        desired_signal = torch.sqrt(torch.tensor(rho_ul))*A.mH@G_hat @ D_eta_sqrt @ q
+        effective_noise_var = torch.var(effective_noise, dim=(1, 2))
+        desired_signal_var = torch.var(desired_signal, dim=(1, 2))
+        Real_SINR = 10.0 * torch.log10(desired_signal_var / effective_noise_var)
         
-        print(f"mean_perbatch {mean_per_batch.shape} = {mean_per_batch}")
+        #print(f"mean_perbatch {mean_per_batch.shape} = {mean_per_batch}")
         print(f"SINR = {SINR}")
         print(f"Real_SINR = {Real_SINR}")
         Real_SINR_noise = effective_noise_var / desired_signal_var
@@ -505,7 +508,7 @@ if __name__ == "__main__":
 
         samples = sampler.MIMO_decide_starttimestep_ddim_sampling(S=opt.ddim_steps, batch_size=batch_size,
                         shape= z.shape[1:4],x_T=z,
-                        conditioning=cond,starttimestep=t, noise_variance = Real_SINR_noise)
+                        conditioning=cond,starttimestep=t, noise_variance = 1.0/SINR_linear)
 
 
 
