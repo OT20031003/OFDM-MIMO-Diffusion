@@ -149,11 +149,12 @@ def make_pilot(tau_p, K, device, dtype):
     return Q_pilot
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    t = None # 固定タイムステップ
-    K = 63
-    M = 64
-    tau_p = K # taup >= Kは必須。M >= にすると推定制度アップ
-    # python -m scripts.MIMOdiffusion > log_MIMO_dynamic_tau=1_M=64_K=63.txt
+    T = None # 固定タイムステップ
+    t = 2
+    N = t
+    r = 2
+    P_power = 1.0
+    # python -m scripts.SU-MIMO > log_SU-MIMO_2_2.txt
     parser.add_argument(
         "--prompt",
         type=str,
@@ -167,15 +168,15 @@ if __name__ == "__main__":
         type=str,
         nargs="?",
         help="dir to write results to",
-        default=f"outputs/MIMOdiffusion/M={M}/K={K}/t={t}"
+        default=f"outputs/SU-MIMO/t={t}_r={r}_t={t}/T={T}"
     )
-    
+
     parser.add_argument(
         "--nosample_outdir",
         type=str,
         nargs="?",
         help="dir to write results to",
-        default=f"outputs/MIMOdiffusion/M={M}/K={K}/nonoisenosample"
+        default=f"outputs/SU-MIMO/t={t}_r={r}_t={t}/nonoisenosample"
     )
 
     parser.add_argument(
@@ -261,8 +262,8 @@ if __name__ == "__main__":
     if opt.intermediate_path != None:
         os.makedirs(opt.intermediate_path, exist_ok=True)
         print(f"{opt.intermediate_path} is created new")
-    if t == None or t <0:
-        opt.outdir = f"outputs/MIMOdiffusion/M={M}/K={K}/dynamic"
+    if T == None or T <0:
+        opt.outdir = f"outputs/SU-MIMO/t={t}_r={r}_t={t}/dynamic"
     config = OmegaConf.load("configs/latent-diffusion/txt2img-1p4B-eval.yaml")  # TODO: Optionally download from same location as ckpt and chnage this logic
     # ldm.modules.diffusion.ddpmをロード
     model = load_model_from_config(config, "models/ldm/text2img-large/model.ckpt")  # TODO: check path
@@ -293,7 +294,7 @@ if __name__ == "__main__":
     remove_png(opt.outdir)
     eps = 0.0000001
     img = load_images_as_tensors(opt.input_path)
-    
+
 
     batch_size = img.shape[0]
 
@@ -312,206 +313,100 @@ if __name__ == "__main__":
     # 複素数するのでsqrt(2)でも
     q_real_data = z/ torch.sqrt(2*(z_variance + eps)).view(-1, 1, 1, 1)
     # チャネル符号化
-    q_view = q_real_data.view(batch_size, K, -1) # (B, K, Nsym)
+    q_view = q_real_data.view(batch_size, t, -1) # (B, K, Nsym)
     N_sym_total = q_view.shape[2]
     assert(N_sym_total % 2 == 0)
-    N_sym = N_sym_total // 2
+    l = N_sym_total // 2 # 送信データ長 (複素数)
     real_part, imag_part = torch.chunk(q_view, 2, dim=2)
     q = torch.complex(real_part, imag_part).to(device)  # (B, K, N_sym)
-    # eta (電力割り当て) - (B, K)
-    # これをランダムにすると、性能が落ちる
-    eta = torch.ones(batch_size, K, device=device, dtype=fdtype)
-    # オプションA: 全要素に対する分散 (スカラー値が出力)
-    real_var_all = torch.var(q.real)
-    imag_var_all = torch.var(q.imag)
+    # パイロット信号 P の生成 (フーリエ変換行列でバッチ共通)
+    t_vec = torch.arange(t, device=device)
+    N_vec = torch.arange(N, device=device)
+    tt, NN = torch.meshgrid(t_vec, N_vec)
+    P = torch.sqrt(torch.tensor(P_power/(N*t)))* torch.exp(1j*2*torch.pi*tt*NN/N)
 
-    print(f"Variance (Real, all elements): {real_var_all.item()}")
-    print(f"Variance (Imag, all elements): {imag_var_all.item()}")
+
     for snr in range(-5, 10, 1):
-        # SNR 15dBのときのノイズを乗せる snr = signal/noise
+        print(f"--------SNR = {snr}-----------")
+        # Noise = t * Noise/Signal
+        noise_variance = t/(10**(snr/10))
+        # チャネルH設定
+        X = q # 送信信号 (B, t, l)
+        H_real = torch.randn(batch_size, r, t) * torch.sqrt(torch.tensor(0.5))
+        H_imag = torch.randn(batch_size, r, t) * torch.sqrt(torch.tensor(0.5))
+        H = H_real + H_imag * 1j # (B, r, t)
+        H = H.to(device)
+        # ガウス雑音
+        V_real = torch.randn(batch_size, r, N) * torch.sqrt(torch.tensor(0.5*noise_variance))
+        V_imag = torch.randn(batch_size, r, N) * torch.sqrt(torch.tensor(0.5*noise_variance))
+        V = V_real + V_imag * 1j # (B, r, N)
+        V = V.to(device)
+        S = H @ P + V #(B, r, N)
+
+        # チャネル推定
+        H_hat = S @ (P.mH @ torch.inverse(P@P.mH))
+        H_tilde = H_hat - H
         
-        rho_ul = 10.0 ** (snr / 10.0)  # 総受信SNR 
-        rho_ul /=K
-        print(f"--------SNR = {snr},  rho_ul = {rho_ul}-----------")
-        # パイロット信号の生成 どのようなパイロットを使うかで性能が変わる
-        # 全バッチで結合
-        Phi = make_pilot(tau_p, K, device=device, dtype=cdtype)  # (tau_p, K)
-        Phi_H = Phi.mH
-        # beta 大規模フェージング
-        beta_vals = [1.0 for x in range(K)]
-        beta = torch.tensor(beta_vals, device=device, dtype=fdtype).view(1, 1, K).to(device)
-        # G (チャネル行列) - (B, M, K)
-        G_real = torch.sqrt(beta / 2) * torch.randn(batch_size, M, K, device=device)
-        G_imag = torch.sqrt(beta / 2) * torch.randn(batch_size, M, K, device=device)
-        G = torch.complex(G_real, G_imag).to(cdtype) # (B, M, K)
-        G_variance = torch.var(G, dim=(1, 2))
-        print(f"G_variance = {G_variance}")
-        # W_p (パイロットノイズ) - (B, M, tau_p)
-        W_p_real = torch.randn(batch_size, M, tau_p, device=device) * torch.sqrt(torch.tensor(0.5))
-        W_p_imag = torch.randn(batch_size, M, tau_p, device=device) * torch.sqrt(torch.tensor(0.5))
-        W_p = torch.complex(W_p_real, W_p_imag).to(cdtype) # (B, M, tau_p)
-        # X_p (送信パイロット) - (K, tau_p)
-        X_p = torch.sqrt(torch.tensor(tau_p, dtype=fdtype)) * Phi_H # (K, tau_p)
-        # Y_p (受信パイロット) - (B, M, tau_p)
-        # (B, M, K) @ (K, tau_p) = (B, M, tau_p)
-        Y_p = torch.sqrt(torch.tensor(rho_ul)) * (G @ X_p) + W_p
 
-        # Y_p_dash (受信機処理) - (B, M, K)
-        # (B, M, tau_p) @ (tau_p, K) = (B, M, K)
-        Y_p_dash = Y_p @ Phi
-        numerator = torch.sqrt(torch.tensor(tau_p * rho_ul)) * beta
-        denominator = 1 + tau_p * rho_ul * beta
-        scaling_factor = (numerator / denominator).to(cdtype) # (1, 1, K)
-        # ここで推定
-        G_hat = scaling_factor * Y_p_dash # (B, M, K)
-        G_hat_variance = torch.var(G_hat, dim=(1, 2))
-        print(f"G_hat_variance = {G_hat_variance}")
-        # gamma (推定チャネルの平均電力)
-        gamma_numerator = tau_p * rho_ul * beta.pow(2)
-        gamma_denominator = 1 + tau_p * rho_ul * beta
-        gamma = (gamma_numerator / gamma_denominator) # (1, 1, K)
-        G_tilde = G_hat - G # 実際のチャネル推定誤差
+        # ここから実際の信号伝送
 
-        print(f"G_tilde_var = {torch.var(G_tilde, dim=(1, 2))}")
-        print(f"gamma = {gamma}")
-        # Z (正規化チャネル推定値)
-        sqrt_gamma = torch.sqrt(gamma).to(cdtype) # (1, 1, K)
-        Z = G_hat / sqrt_gamma # (B, M, K)
-        Z_variance = torch.var(Z, dim=(1,2))
-        Z_mean = torch.mean(Z, dim=(1, 2))
-        print(f"Z_mean = {Z_mean}")
-        print(f"Z_variance ~CN(0, 1)= {Z_variance}")
-        # ここからデータ送信
+        # 通信ノイズ
+        W_real = torch.randn(batch_size, r, l) * torch.sqrt(torch.tensor(0.5*noise_variance))
+        W_imag = torch.randn(batch_size, r, l) * torch.sqrt(torch.tensor(0.5*noise_variance))
+        W = W_real + W_imag * 1j # (r, l)
+        W = W.to(device)
 
-        # (B, K, K) の対角行列を作成
-        D_eta_sqrt = torch.diag_embed(torch.sqrt(eta)).to(cdtype) # (B, K, K)
-
-        # w (データノイズ) - (B, M, N_sym)
-        w_real = torch.randn(batch_size, M, N_sym, device=device) / torch.sqrt(torch.tensor(2.0))
-        w_imag = torch.randn(batch_size, M, N_sym, device=device) / torch.sqrt(torch.tensor(2.0))
-        w = torch.complex(w_real, w_imag) # (B, M, N_sym)
-        # y (受信データ) - (B, M, N_sym)
-        # q (B, K, N_sym)
-        # (B, M, K) @ (B, K, N_sym) = (B, M, N_sym)
-        signal = torch.sqrt(torch.tensor(rho_ul)) * (G @ (D_eta_sqrt @ q))
-        signal_var = torch.var(signal, dim=(1, 2))
-        w_var = torch.var(w, dim=(1, 2))
-        Real_SNR = 10.0 * torch.log10(signal_var/w_var)
-        print(f"Real_SNR = {Real_SNR}")
-        y = signal + w
-        y_var = torch.var(y, dim=(1, 2))
-        print(f"q_var = {torch.var(q, dim=(1, 2))}")
+        #受信信号
+        Y = H @ X + W
+        #print(f"H@X var = {torch.var(H@X, dim=(1, 2))}")
+        print(f"Real SNR = {10*torch.log10(torch.var(H@X, dim=(1, 2))/ torch.var(W,dim=(1, 2)))}")
+        # ZFフィルタ
+        A = torch.inverse(H_hat.mH@H_hat) @ H_hat.mH
+        SINR = torch.var(X, dim=(1, 2)) / torch.var(A@(W-H_tilde@X), dim=(1, 2))
+        # 完全な推定ができた場合
+        A = torch.inverse(H.mH@H) @ H.mH
+        SINR = torch.var(X, dim=(1, 2)) / torch.var(A@(W), dim=(1, 2))
+        AY = A @ Y #(B, t, l)
+        E = X - AY
+        print(f"torch.linalg.det(H_hat.mH@H_hat) = {torch.linalg.det(H_hat.mH@H_hat)}")
+        print(f"torch.linalg.det(H.mH@H) = {torch.linalg.det(H.mH@H)}")
         
-        print(f"(D_eta_sqrt @ q).var = {torch.var((D_eta_sqrt @ q), dim=(1, 2))}")
-        print(f"(G @ (D_eta_sqrt @ q)).var = {torch.var((G @ (D_eta_sqrt @ q)), dim=(1, 2))}")
-        print(f"signal_var = {signal_var}")
-        print(f"w_var = {w_var}")
-        print(f"y_var = {y_var}")
-
-        # -- Zero-Forcing  --
-        # A (ZFフィルタ): (B, M, K)
-        Z_H = Z.mH # (B, K, M)
-        Z_H_Z = Z_H @ Z # (B, K, K)
-        inv_Z_H_Z = torch.linalg.inv(Z_H_Z) # (B, K, K)
-        A = Z @ inv_Z_H_Z # (B, M, K)
-        # AHy (等化後信号): (B, K, N_sym)
-        AHy = A.mH @ y # (B, K, M) @ (B, M, N_sym)
-
-        # q_receiver (復元データ)
-        # (B, K, 1) に形状を整えてブロードキャスト
-        gamma_scaled = gamma.permute(0, 2, 1).to(cdtype) # (1, 1, K) -> (1, K, 1)
-        eta_scaled = eta.unsqueeze(-1).to(cdtype)      # (B, K) -> (B, K, 1)
-
-        scaling_factor = torch.sqrt(rho_ul * gamma_scaled * eta_scaled) # (B, K, 1)
-        q_receiver = AHy / scaling_factor # (B, K, N_sym)
-
+        
+        print(f"SINR {SINR.shape} = {10*torch.log10(SINR)}")
+        print(f"E[SINR] = {1/(r - t+eps)}")
+        E_mse = torch.mean(torch.abs(E)**2)
+        print(f"E_MSE (Error Power) = {E_mse}")
         # --逆符号化--
-        # --- 1. 実部と虚部を分離 ---
-        # q の形状: (B, K, N_sym) = (10, 4, 512)
-        real_part_restored = torch.real(q_receiver)
-        imag_part_restored = torch.imag(q_receiver)
+        # 実部と虚部に分離
+        # --逆符号化 (修正版)--
+        # AY の形状: (B, t, l)
+
+        # 1. 複素数を実数のペアに変換 -> 形状: (B, t, l, 2)
+        AY_real_imag = torch.view_as_real(AY)
+
+        # 2. 最後の次元(dim=3)から実部と虚部を正しく抽出
+        #    real_part_restored の形状: (B, t, l)
+        real_part_restored = AY_real_imag[..., 0]
+        #    imag_part_restored の形状: (B, t, l)
+        imag_part_restored = AY_real_imag[..., 1]
+
+        # 3. 符号化時と「逆」の操作で、実部と虚部を dim=2 で結合
+        #    q_view_restored の形状: (B, t, 2*l)  <- 元の q_view と同じ形状
         q_view_restored = torch.cat([real_part_restored, imag_part_restored], dim=2)
-        # q_view_restores = (B, K, 2*N_sym)
+
+        # 4. 元の
         q_real_data_restored = q_view_restored.view(batch_size, z_channel, z_h_size, z_w_size)
 
-
-        # 非正規化
+        # 正規化を元に戻す
         z = q_real_data_restored * torch.sqrt(2*(z_variance + eps)).view(-1, 1, 1, 1)
-
-        
 
         recoverd_img_no_samp = model.decode_first_stage(z)
         #save_img(recoverd_img_no_samp, f"outputs/nosample_{snr}.png")
         cond = model.get_learned_conditioning(z.shape[0] * [""])
         print(f"####cond finisihed #####")
-        #Z_H_Z の形状: (B, K, K)
-        # 各バッチの対角成分(K, K)を取得し、絶対値をとる
-        # Z_H_Z_k の形状: (B, K)
-        inv_Z_H_Z_k = torch.diagonal(inv_Z_H_Z, dim1=-2, dim2=-1).abs()
-
-        # beta, gamma の形状: (1, 1, K)
-        # squeeze() で不要な次元を削除 -> (K,)
-        beta_sq = beta.squeeze()   # (K,)
-        gamma_sq = gamma.squeeze() # (K,)
-        
-        # eta の形状: (B, K)
-
-        # 1. (beta_k - gamma_k) を計算
-        # diff の形状: (K,)
-        diff = beta_sq - gamma_sq
-        
-        # 2. (beta_k - gamma_k) * eta_bk を計算
-        # (K,) * (B, K) -> (B, K) (diff が (B, K) にブロードキャストされる)
-        prod = diff * eta
-        
-        # 3. Kの次元で総和を取る: sum_{k=0}^{K-1} ...
-        # sum_term の形状: (B,)
-        sum_term = torch.sum(prod, dim=1)
-        print(f"sum_betak_gammak = {sum_term}")
-        # 4. 1.0 を足す (term の計算)
-        # term の形状: (B,)
-        term = 1.0 + rho_ul*sum_term
-        
-        # Var の計算
-        # term を (B, 1) に変形してブロードキャスト
-        # (B, 1) * (B, K) -> (B, K)
-        # Var の形状: (B, K)
-        Var = term.unsqueeze(-1) * inv_Z_H_Z_k
-
-        print(f"************")
-        # Z_H_Z_k は (B, K) のテンソルとして表示
-        print(f"inv_Z_H_Z_k (shape: {inv_Z_H_Z_k.shape}) = {inv_Z_H_Z_k}")
-        print(f"inv_Z_H_Z_k.mean (expected to be = {1/(M-K+eps)}) = {torch.mean(inv_Z_H_Z_k, dim=(0, 1))}")
-        # Var は (B, K) のテンソルとして表示
-        print(f"Var (shape: {Var.shape}) = {Var}")
-        print(f"***********")
-        signal_power = rho_ul * gamma.squeeze() * eta
-        Var = signal_power / Var
-        SINR_linear = torch.mean(Var, dim=1) # ユーザ間で平均（線形値）
-        SINR = 10.0 * torch.log10(SINR_linear) # dBに変換
-        
-
-        # Real SNRの計算
-        effective_noise = A.mH@(w - torch.sqrt(torch.tensor(rho_ul))*G_tilde@(D_eta_sqrt@q))
-        desired_signal = torch.sqrt(torch.tensor(rho_ul))*A.mH@G_hat @ D_eta_sqrt @ q
-        effective_noise_var = torch.var(effective_noise, dim=(1, 2))
-        desired_signal_var = torch.var(desired_signal, dim=(1, 2))
-        Real_SINR = 10.0 * torch.log10(desired_signal_var / effective_noise_var)
-        
-        #print(f"mean_perbatch {mean_per_batch.shape} = {mean_per_batch}")
-        print(f"SINR = {SINR}")
-        print(f"Real_SINR = {Real_SINR}")
-        Real_SINR_noise = effective_noise_var / desired_signal_var
-        print(f"Real_SINR_noise.shape = {Real_SINR_noise.shape}")
-       
-
-        
-
-
-
         samples = sampler.MIMO_decide_starttimestep_ddim_sampling(S=opt.ddim_steps, batch_size=batch_size,
                         shape= z.shape[1:4],x_T=z,
-                        conditioning=cond,starttimestep=t, noise_variance = 1.0/SINR_linear)
+                        conditioning=cond,starttimestep=T, noise_variance = 1/SINR)
 
 
 

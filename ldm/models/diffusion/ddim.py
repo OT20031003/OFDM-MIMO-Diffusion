@@ -602,6 +602,8 @@ class DDIMSampler(object):
         device = self.model.betas.device
 
         #torch.clamp(start_timesteps, 0, S)
+        if noise_variance == None:
+            noise_variance = 1.0
         alpha_bar_u = 1/(1 + noise_variance)
         print(f"ddim.py, alpha_bar_u = {alpha_bar_u}")
         alpha_minus = -self.alphas_cumprod
