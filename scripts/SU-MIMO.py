@@ -364,16 +364,18 @@ if __name__ == "__main__":
         A = torch.inverse(H_hat.mH@H_hat) @ H_hat.mH
         SINR = torch.var(X, dim=(1, 2)) / torch.var(A@(W-H_tilde@X), dim=(1, 2))
         # 完全な推定ができた場合
-        A = torch.inverse(H.mH@H) @ H.mH
-        SINR = torch.var(X, dim=(1, 2)) / torch.var(A@(W), dim=(1, 2))
+        # A = torch.inverse(H.mH@H) @ H.mH
+        # SINR = torch.var(X, dim=(1, 2)) / torch.var(A@(W), dim=(1, 2))
         AY = A @ Y #(B, t, l)
         E = X - AY
         print(f"torch.linalg.det(H_hat.mH@H_hat) = {torch.linalg.det(H_hat.mH@H_hat)}")
+        print(f"torch.mean(torch.linalg.det(H_hat.mH@H_hat))={torch.mean(torch.linalg.det(H_hat.mH@H_hat))}")
         print(f"torch.linalg.det(H.mH@H) = {torch.linalg.det(H.mH@H)}")
         
-        
+        print(f"torch.mean(torch.linalg.det(H.mH@H)) = {torch.mean(torch.linalg.det(H.mH@H))}")
         print(f"SINR {SINR.shape} = {10*torch.log10(SINR)}")
-        print(f"E[SINR] = {1/(r - t+eps)}")
+        print(f"SINR mean = {torch.mean(10*torch.log10(SINR))}")
+        print(f"E[H^H] = {(r - t+eps)}")
         E_mse = torch.mean(torch.abs(E)**2)
         print(f"E_MSE (Error Power) = {E_mse}")
         # --逆符号化--

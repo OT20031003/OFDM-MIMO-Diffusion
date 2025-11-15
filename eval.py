@@ -312,7 +312,7 @@ if __name__ == "__main__":
     main()
 
 """
-python eval.py --metric lpips outputs/SU-MIMO/t=2_r=2_t=2/nonoisenosample outputs/SU-MIMO/t=2_r=2_t=2/dynamic/ outputs/SU-MIMO/t=4_r=4_t=4/dynamic
+python eval.py --metric lpips outputs/SU-MIMO/t=2_r=2_t=2/nonoisenosample outputs/SU-MIMO/t=2_r=2_t=2/dynamic/ outputs/SU-MIMO/t=2_r=2_t=2/dynamic_complete
 
 
 """
