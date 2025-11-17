@@ -161,12 +161,12 @@ def make_pilot(tau_p, K, device, dtype):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     T = None # 固定タイムステップ
-    t = 2
+    t = 16
     N = t
-    r = 2
+    r = 16
     P_power = 1.0
     Perfect_Estimate = True
-    # python -m scripts.ALLSU-MIMO > log_ALLSU-MIMO_2_2_perfect.txt
+    # python -m scripts.ALLSU-MIMO > log_ALLSU-MIMO_16_16_perfect.txt
     parser.add_argument(
         "--prompt",
         type=str,
