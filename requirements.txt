@@ -1,0 +1,63 @@
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+# --- Core Frameworks ---
+torch==2.5.1
+torchvision==0.20.1
+torchaudio==2.5.1
+numpy==1.26.4
+tensorflow
+
+# --- Wireless / Sionna ---
+sionna==1.2.1
+sionna-rt==1.2.1
+mitsuba==3.7.1
+drjit==1.2.0
+
+# --- LDM / Generative AI Core ---
+# Note: CLIP and Latent-Diffusion git links removed per request.
+# You may need to install them manually if imports fail.
+
+omegaconf==2.1.1
+einops==0.3.0
+taming-transformers-rom1504
+transformers>=4.19.2
+pytorch-lightning==1.4.2
+torchmetrics==0.7.0
+test_tube==0.7.5
+albumentations==0.4.3
+kornia==0.6.4
+lpips==0.1.4
+
+# --- Data Science & Visualization ---
+matplotlib==3.10.0
+scipy==1.15.3
+pandas==2.0.3
+seaborn==0.13.2
+streamlit==1.40.1
+jupyterlab==4.5.0
+notebook==7.5.0
+ipykernel==7.1.0
+
+# --- Utilities & dependencies ---
+absl-py
+anyio>=4.0.0
+certifi
+click
+filelock
+fsspec
+huggingface-hub
+imageio
+imageio-ffmpeg
+Jinja2
+networkx
+packaging
+pillow
+protobuf
+pyarrow
+pyyaml
+requests
+rich
+tqdm
+typing_extensions
+urllib3
+wandb

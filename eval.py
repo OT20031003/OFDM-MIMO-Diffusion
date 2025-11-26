@@ -312,7 +312,7 @@ if __name__ == "__main__":
     main()
 
 """
-python eval.py --metric psnr outputs/ALLSU-MIMO/t=2_r=2_t=2/dynamic outputs/ALLSU-MIMO/t=2_r=2_t=2/dynamic/nosample outputs/ALLSU-MIMO/t=2_r=2_t=2/dynamic_perfect_estimate outputs/ALLSU-MIMO/t=2_r=2_t=2/nosample_perfect_estimate 
+python eval.py --metric lpips outputs/OFDM/Perfect_CSI/nosample outputs/OFDM/Perfect_CSI/T=400/ outputs/OFDM/Linear_Interp_nodiffusion/ outputs/OFDM/Linear_Interp_T=400/
 
 
 """
