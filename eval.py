@@ -312,7 +312,7 @@ if __name__ == "__main__":
     main()
 
 """
-python eval.py --metric lpips outputs/OFDM/Perfect_CSI/nosample outputs/OFDM/Perfect_CSI/T=400/ outputs/OFDM/Linear_Interp_nodiffusion/ outputs/OFDM/Linear_Interp_T=400/
+python eval.py --metric lpips outputs/OFDM/Diffusion_dynamic/nodiffusion/ outputs/OFDM/Diffusion_dynamic/ outputs/OFDM/Linear_Interp_nodiffusion/ outputs/OFDM/Linear_Interp_T=400/ outputs/OFDM/Diffusion_nodiffusion/ outputs/OFDM/Diffusion_T=400/
 
 
 """
