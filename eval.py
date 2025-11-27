@@ -312,7 +312,7 @@ if __name__ == "__main__":
     main()
 
 """
-python eval.py --metric psnr outputs/OFDM/Diffusion_dynamic/nodiffusion/ outputs/OFDM/Diffusion_dynamic/  outputs/OFDM/Linear_Interp_dynamic/nodiffusion/ outputs/OFDM/Linear_Interp_dynamic/
+python eval.py --metric ssim outputs/OFDM/Perfect_CSI_dynamic/nodiffusion outputs/OFDM/Perfect_CSI_dynamic outputs/OFDM/Diffusion_dynamic/nodiffusion outputs/OFDM/Diffusion_dynamic  outputs/OFDM/Linear_Interp_dynamic/nodiffusion/ outputs/OFDM/Linear_Interp_dynamic/ 
 
 
 """

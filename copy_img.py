@@ -16,7 +16,7 @@ if os.path.exists(dest_dir):
     shutil.rmtree(dest_dir)
 
 # 3. ★Specify the number of images you want here★
-num_files_to_copy = 20  # (e.g., copy 50 files)
+num_files_to_copy = 100  # (e.g., copy 50 files)
 # --- End of Configuration ---
 
 # Create the destination folder

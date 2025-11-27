@@ -7,7 +7,7 @@ and activated with:
 ```
 conda create --name ldm python=3.9
 conda activate ldm
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 
 

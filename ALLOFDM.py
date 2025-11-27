@@ -206,7 +206,7 @@ if __name__ == "__main__":
 
     # チャネル推定モデルのロードもループの外で行う
     model_channel = ConditionalUNet(in_channels=32, cond_channels=32).to(device)
-    CHECKPOINT_PATH = "ckpt_step_135000.pth"
+    CHECKPOINT_PATH = "ckpt_step_190000.pth"
     if os.path.exists(CHECKPOINT_PATH):
         ckpt = torch.load(CHECKPOINT_PATH, map_location=device)
         model_channel.load_state_dict(ckpt['model_state_dict'])
@@ -253,9 +253,10 @@ if __name__ == "__main__":
 
             BATCH_SIZE = img.shape[0] # 最後のバッチは20未満になる可能性があるため動的に取得
             
-            # 元画像の保存（最初のモードのときだけ保存するなど制御してもよいが、ここでは毎回上書きor保存）
-            # save_img_individually(img, opt.sentimgdir + "/sentimg.png", start_index=current_batch_idx)
-            
+            # --- 画像保存処理の修正案 ---
+            # 最初のモードの時だけ、元画像を保存する（無駄な上書きを防ぐため）
+            if mode == MODES[0]: 
+                save_img_individually(img, opt.sentimgdir + "/sentimg.png", start_index=current_batch_idx)
             img = img.to(device=device)
             
             # Encode

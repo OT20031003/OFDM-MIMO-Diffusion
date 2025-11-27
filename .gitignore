@@ -4,8 +4,11 @@ no_inputs
 leftImg8bit_trainvaltest
 intermediate
 outputs
+outputs_save
 val2017
 val2017.zip
 sentimg 
 input_img
+sentimg_save 
+input_img_save
 *.pth
